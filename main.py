@@ -44,7 +44,7 @@ airports = pd.read_csv('data/airports.csv',
                        converters={0: read_airports,
                                    1: lambda x: x.strip(),
                                    2: lambda x: x.strip(),
-                                   3: lambda x: x.strip()})
+                                   3: lambda x: x.split()[0]})
 
 cargo = pd.read_csv('data/cargo transportation.csv',
                     sep=';',
@@ -117,6 +117,11 @@ passenger_year.columns = passenger_year.loc['Наименование аэроп
 passenger_year = passenger_year.drop('Наименование аэропорта РФ', axis=0).astype(int)
 month_sum = pd.DataFrame(passenger_year.sum(axis=1)).set_axis(['Средний пассажиропоток'], axis=1)
 month_sum['Аэропорт'] = passenger_year.idxmax(axis=1)
-print(month_sum)
+print(month_sum, '\n')
 
 # Выведите таблицу: Тип аэропорта, средний грузопоток в месяц в аэропортах данного типа
+
+year = 2017
+cargo_year = cargo[cargo['Год периода данных'] == year]
+merged_cargo = pd.merge(cargo_year, airports).drop(labels=['Сертификат', 'Владелец', 'Год периода данных'], axis=1)
+print(merged_cargo.groupby('Тип').median(numeric_only=True).dropna(axis=0, thresh=7))
